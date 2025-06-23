@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Киноман</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Общие сбросы и базовые стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%); /* Глубокий темный градиент */
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center; /* Центрируем содержимое по горизонтали */
+            align-items: flex-start; /* Прижимаем к верху по вертикали */
+            padding: 40px 20px; /* Отступы вокруг основного контейнера */
+            overflow-y: auto; /* Для скролла, если контента много */
+        }
+
+        /* Главный контейнер приложения, имитирующий десктопное окно */
+        .app-container {
+            background: rgba(0, 0, 0, 0.7); /* Полупрозрачный темный фон */
+            backdrop-filter: blur(15px); /* Сильное размытие фона */
+            border: 1px solid rgba(229, 9, 20, 0.4); /* Красная обводка */
+            border-radius: 25px; /* Сильно закругленные углы */
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); /* Большая тень */
+            width: 100%;
+            max-width: 800px; /* Фиксированная максимальная ширина, как в видео */
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px; /* Промежутки между секциями */
+            animation: fadeIn 0.8s ease-out; /* Плавное появление */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Заголовок приложения */
+        .app-header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: bold;
+            color: #e50914; /* Яркий красный цвет */
+            text-shadow: 0 0 12px rgba(229, 9, 20, 0.8);
+            margin-bottom: 10px;
+        }
+
+        .tagline {
+            font-size: 16px;
+            opacity: 0.7;
+        }
+
+        /* Секция управления (поиск, сканирование, добавление) */
+        .control-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Промежутки между элементами */
+            width: 100%;
+        }
+
+        .search-input {
+            padding: 15px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            color: white;
+            font-size: 16px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #f40612;
+            box-shadow: 0 0 12px rgba(229, 9, 20, 0.6);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap; /* Для адаптивности кнопок */
+        }
+
+        /* Стили для кнопок */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #e50914, #f40612);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #f40612, #ff3842);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(229, 9, 20, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Секция статистики */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            transition: transform 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #e50914;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(229, 9, 20, 0.7);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.8;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Список фильмов */
+        .movies-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Отступы между элементами списка */
+            width: 100%;
+        }
+
+        .movie-card-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .movie-card-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            border-color: #f40612;
+        }
+
+        .movie-card-item .poster-thumb {
+            width: 60px; /* Миниатюрный постер */
+            height: 90px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0; /* Не сжимается */
+            background: linear-gradient(135deg, #333, #555);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-size: 30px;
+        }
+        .movie-card-item .poster-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .movie-card-item .info {
+            flex-grow: 1; /* Занимает все доступное пространство */
+        }
+
+        .movie-card-item .title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-card-item .meta {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .movie-card-item .actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0; /* Не сжимаются */
+        }
+
+        .movie-card-item .btn-action {
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: background 0.2s ease;
+        }
+        .movie-card-item .btn-action:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .movie-card-item .btn-action.play {
+            background: #e50914;
+            border-color: #e50914;
+        }
+        .movie-card-item .btn-action.play:hover {
+            background: #f40612;
+        }
+        .movie-card-item .btn-action.delete {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+        .movie-card-item .btn-action.delete:hover {
+            background: #c82333;
+        }
+
+        /* Состояния загрузки/пустоты/ошибки */
+        .loading, .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            font-size: 18px;
+            opacity: 0.7;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #e50914;
+            font-size: 24px;
+        }
+        .empty-state p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* Модальные окна (редактирование и видеоплеер) */
+        .modal {
+            display: none; /* Скрыто по умолчанию */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex; /* Центрирование */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(229, 9, 20, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease-out; /* Плавное появление */
+            position: relative; /* Для позиционирования close-btn */
+        }
+        /* Специфичные стили для модального окна видеоплеера */
+        #videoPlayerModal .modal-content {
+            max-width: 90%; /* Шире для видео */
+            width: 90%; /* Адаптивная ширина */
+            height: auto; /* Высота по содержимому */
+            max-height: 90vh; /* Максимальная высота */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px; /* Меньше паддинга для видео */
+        }
+
+        #videoPlayerModal video {
+            width: 100%;
+            height: auto;
+            max-height: 70vh; /* Максимальная высота видео */
+            border-radius: 15px;
+            background-color: black;
+            display: block;
+            margin-bottom: 15px;
+        }
+        #videoPlayerModal .video-info {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        #videoPlayerModal .video-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        #videoPlayerModal .video-meta {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        #videoPlayerModal .video-error-message {
+            color: #dc3545;
+            font-size: 16px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+            width: 100%; /* Убедимся, что занимает всю ширину модального окна */
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #e50914;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+        .close-btn:hover {
+            color: #f40612;
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #e50914;
+            box-shadow: 0 0 8px rgba(229, 9, 20, 0.4);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        textarea.form-input {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .modal-actions .btn {
+            flex-grow: 1; /* Кнопки в модальном окне будут растягиваться */
+            padding: 10px 20px;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            .app-container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            .app-header .logo {
+                font-size: 30px;
+            }
+            .control-section {
+                gap: 10px;
+            }
+            .search-input {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            .button-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .stat-number {
+                font-size: 24px;
+            }
+            .stat-label {
+                font-size: 12px;
+            }
+            .movie-card-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px;
+                gap: 10px;
+            }
+            .movie-card-item .poster-thumb {
+                width: 50px;
+                height: 75px;
+            }
+            .movie-card-item .info {
+                width: 100%;
+            }
+            .movie-card-item .actions {
+                width: 100%;
+                justify-content: center;
+            }
+            .movie-card-item .btn-action {
+                flex-grow: 1;
+            }
+            .modal-content {
+                padding: 20px;
+                border-radius: 15px;
+            }
+            .modal-title {
+                font-size: 20px;
+            }
+            .close-btn {
+                font-size: 24px;
+            }
+        }
+        #videoPlayerModal .modal-content {
+            max-width: 95%;
+            width: 95%;
+            padding: 15px;
+        }
+        #videoPlayerModal video {
+            max-height: 60vh;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="logo">🎬 Киноман</div>
+            <div class="tagline">Ваша личная коллекция фильмов</div>
+        </div>
+
+        <div class="control-section">
+            <input type="text" class="search-input" id="searchInput" placeholder="Поиск фильмов...">
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="scanMovies()">
+                    <span style="font-family: 'Segoe UI Symbol', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji';">🔄</span> Сканировать
+                </button>
+                <button class="btn btn-secondary" onclick="browseForMovie()">
+                    <span style="font-family: 'Segoe UI Symbol', 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji';">➕</span> Добавить
+                </button>
+            </div>
+        </div>
+
+        <div class="stats" id="statsContainer">
+            <div class="stat-card">
+                <div class="stat-number" id="totalMovies">0</div>
+                <div class="stat-label">Фильмов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalSize">0 ГБ</div>
+                <div class="stat-label">Общий размер</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalDuration">0ч</div>
+                <div class="stat-label">Общее время</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgRating">0</div>
+                <div class="stat-label">Средний рейтинг</div>
+            </div>
+        </div>
+
+        <div class="movies-list" id="moviesContainer">
+            <div class="loading">Загрузка фильмов...</div>
+        </div>
+    </div>
+
+    <!-- Модальное окно редактирования -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Редактировать фильм</div>
+                <button class="close-btn" onclick="closeModal('editModal')">&times;</button>
+            </div>
+            <form id="editForm">
+                <div class="form-group">
+                    <label class="form-label">Название</label>
+                    <input type="text" class="form-input" id="editTitle" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Жанр</label>
+                    <input type="text" class="form-input" id="editGenre" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Год</label>
+                    <input type="number" class="form-input" id="editYear" min="1900" max="2025" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Рейтинг (0-10)</label>
+                    <input type="number" class="form-input" id="editRating" min="0" max="10" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Описание</label>
+                    <textarea class="form-input" id="editDescription" rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editModal')">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Новое модальное окно для видеоплеера -->
+    <div class="modal" id="videoPlayerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="videoPlayerTitle"></div>
+                <button class="close-btn" onclick="closeModal('videoPlayerModal')">&times;</button>
+            </div>
+            <video id="videoPlayer" controls autoplay>
+                Ваш браузер не поддерживает HTML5 видео.
+            </video>
+            <div class="video-info">
+                <div class="video-meta" id="videoPlayerMeta"></div>
+            </div>
+            <div class="video-error-message" id="videoPlayerError"></div>
+        </div>
+    </div>
+
+    <!-- Важно: Включите eel.js ПЕРЕД вашими собственными скриптами -->
+    <script type="text/javascript" src="/eel.js"></script>
+
+    <script>
+        let currentMovies = []; // Хранит текущий список фильмов
+        let currentEditingMovie = null; // ID фильма, который в данный момент редактируется
+
+        // Событие: Документ загружен
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMovies(); // Изначальная загрузка фильмов
+            updateStats(); // Изначальная загрузка статистики
+            
+            // Обработчик события ввода для поля поиска (поиск в реальном времени)
+            document.getElementById('searchInput').addEventListener('input', function() {
+                const query = this.value;
+                if (query.length === 0) {
+                    displayMovies(currentMovies); // Если поиск очищен, показываем все фильмы
+                } else if (query.length >= 2) {
+                    searchMovies(query); // Если введено 2 или более символов, запускаем поиск
+                }
+            });
+
+            // Останавливать видео при закрытии модального окна
+            document.getElementById('videoPlayerModal').addEventListener('click', function(event) {
+                if (event.target === this) { // Если клик был по фону модального окна
+                    closeModal('videoPlayerModal');
+                }
+            });
+            // Останавливать видео при закрытии кнопкой 'x'
+            document.querySelector('#videoPlayerModal .close-btn').addEventListener('click', function() {
+                closeModal('videoPlayerModal');
+            });
+        });
+
+        async function loadMovies() {
+            const container = document.getElementById('moviesContainer');
+            container.innerHTML = '<div class="loading">Загрузка фильмов...</div>'; // Показываем индикатор загрузки
+
+            try {
+                // Вызываем Python-функцию get_movies(), которая вернет объект {success: bool, movies: [...]}
+                const result = await eel.get_movies()(); 
+                if (result.success) {
+                    currentMovies = result.movies; // Обновляем локальный список фильмов
+                    displayMovies(currentMovies); // Отображаем фильмы на странице
+                    updateStats(); // Обновляем статистику
+                } else {
+                    console.error('Ошибка загрузки фильмов с бэкенда:', result.error);
+                    showError('Ошибка загрузки фильмов: ' + result.error); // Показываем сообщение об ошибке пользователю
+                }
+            } catch (error) {
+                // Обработка ошибок, которые могут возникнуть при самом вызове Eel (например, если Python-сервер недоступен)
+                console.error('Критическая ошибка при вызове eel.get_movies():', error);
+                showError('Критическая ошибка при загрузке фильмов. Проверьте консоль сервера и браузера.');
+            }
+        }
+
+        async function scanMovies() {
+            const container = document.getElementById('moviesContainer');
+            container.innerHTML = '<div class="loading">Сканирование фильмов...</div>'; // Показываем индикатор сканирования
+            
+            try {
+                // Вызов get_movies() в Python автоматически запускает сканирование папки
+                const result = await eel.get_movies()(); 
+                if (result.success) {
+                    currentMovies = result.movies;
+                    displayMovies(currentMovies);
+                    updateStats();
+                } else {
+                    console.error('Ошибка сканирования фильмов с бэкенда:', result.error);
+                    showError('Ошибка сканирования фильмов: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Критическая ошибка при вызове eel.get_movies() для сканирования:', error);
+                showError('Критическая ошибка при сканировании. Проверьте консоль сервера и браузера.');
+            }
+        }
+
+        async function searchMovies(query) {
+            try {
+                const results = await eel.search_movies(query)();
+                displayMovies(results); // Отображаем результаты поиска
+            } catch (error) {
+                console.error('Ошибка поиска:', error);
+                // В случае ошибки поиска, можно решить показать все фильмы или пустой результат
+            }
+        }
+
+        function displayMovies(movies) {
+            const container = document.getElementById('moviesContainer');
+            
+            // Если массив фильмов пуст или равен null/undefined
+            if (!movies || movies.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Фильмы не найдены</h3>
+                        <p>Добавьте фильмы в папку 'movies' и нажмите 'Сканировать'.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Генерируем HTML для каждой карточки фильма в виде элемента списка
+            const moviesHTML = movies.map(movie => `
+                <div class="movie-card-item">
+                    <div class="poster-thumb">
+                        ${movie.thumbnail ? 
+                            `<img src="thumbnails/${movie.thumbnail}" alt="${movie.title}" onerror="this.onerror=null;this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiB2aWV3Qm94PSIwIDAgMzAwIDQ1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMzMzIi8+CiAgPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI5MHB4IiBmaWxsPSIjOTk5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn5y0PC90ZXh0PgogPC9zdmc+'">` :
+                            `<div class="movie-poster-placeholder" style="font-size: 30px;">🎬</div>`
+                        }
+                    </div>
+                    <div class="info">
+                        <div class="title" title="${movie.title}">${movie.title}</div>
+                        <div class="meta">${movie.genre} · ${movie.year} · ⭐ ${movie.rating}/10</div>
+                    </div>
+                    <div class="actions">
+                        <!-- Изменено: теперь вызываем playMovie с movie.id -->
+                        <button class="btn-action play" onclick="playMovie('${movie.id}')">▶️</button>
+                        <button class="btn-action edit" onclick="editMovie('${movie.id}')">✏️</button>
+                        <button class="btn-action delete" onclick="deleteMovie('${movie.id}')">🗑️</button>
+                    </div>
+                </div>
+            `).join(''); // Объединяем все карточки в одну строку HTML
+
+            container.innerHTML = `<div class="movies-list">${moviesHTML}</div>`; // Вставляем сгенерированный HTML в контейнер
+        }
+
+        async function updateStats() {
+            try {
+                const stats = await eel.get_movies_stats()(); // Получаем статистику из Python
+                document.getElementById('totalMovies').textContent = stats.total_movies;
+                document.getElementById('totalSize').textContent = formatFileSize(stats.total_size);
+                document.getElementById('totalDuration').textContent = formatDuration(stats.total_duration);
+                document.getElementById('avgRating').textContent = stats.avg_rating;
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+                // Можно добавить сообщение об ошибке для статистики, если это важно
+            }
+        }
+
+        async function playMovie(movieId) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoPlayerTitle = document.getElementById('videoPlayerTitle');
+            const videoPlayerMeta = document.getElementById('videoPlayerMeta');
+            const videoPlayerError = document.getElementById('videoPlayerError');
+
+            videoPlayerError.textContent = ''; // Очищаем предыдущие ошибки
+            videoPlayer.pause(); // Останавливаем текущее видео, если есть
+            videoPlayer.removeAttribute('src'); // Удаляем текущий источник видео
+            videoPlayer.load(); // Перезагружаем плеер
+
+            try {
+                const movie = await eel.get_movie_details(movieId)(); // Получаем детали фильма по ID
+                if (!movie) {
+                    videoPlayerError.textContent = 'Ошибка: Фильм не найден для воспроизведения.';
+                    document.getElementById('videoPlayerModal').style.display = 'flex';
+                    return;
+                }
+
+                const result = await eel.prepare_movie_for_playback(movie.path)(); // Запрос на подготовку пути
+                
+                if (result.success) {
+                    const videoPath = result.local_url; // Получаем локальный URL для видео
+
+                    videoPlayerTitle.textContent = movie.title;
+                    videoPlayerMeta.textContent = `${movie.genre} · ${movie.year} · ⭐ ${movie.rating}/10`;
+                    
+                    videoPlayer.src = videoPath;
+                    videoPlayer.load(); // Загружаем новое видео
+                    videoPlayer.play().catch(error => {
+                        console.error('Ошибка автоматического воспроизведения видео:', error);
+                        videoPlayerError.textContent = 'Ошибка автоматического воспроизведения. Пожалуйста, нажмите "Играть".';
+                    });
+                    document.getElementById('videoPlayerModal').style.display = 'flex'; // Показываем модальное окно
+                } else {
+                    videoPlayerError.textContent = 'Ошибка воспроизведения: ' + result.error;
+                    document.getElementById('videoPlayerModal').style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Критическая ошибка при воспроизведении фильма:', error);
+                videoPlayerError.textContent = 'Критическая ошибка при попытке воспроизведения фильма. Проверьте консоль.';
+                document.getElementById('videoPlayerModal').style.display = 'flex';
+            }
+        }
+
+        async function editMovie(movieId) {
+            try {
+                const movie = await eel.get_movie_details(movieId)(); // Получаем детали фильма по ID
+                if (!movie) {
+                    alert('Фильм не найден для редактирования.'); // Временно alert, можно заменить на UI-сообщение
+                    return;
+                }
+
+                currentEditingMovie = movieId; // Сохраняем ID редактируемого фильма
+                // Заполняем поля формы текущими данными фильма
+                document.getElementById('editTitle').value = movie.title;
+                document.getElementById('editGenre').value = movie.genre;
+                document.getElementById('editYear').value = movie.year;
+                document.getElementById('editRating').value = movie.rating;
+                document.getElementById('editDescription').value = movie.description;
+                
+                document.getElementById('editModal').style.display = 'flex'; // Показываем модальное окно
+            } catch (error) {
+                console.error('Ошибка загрузки данных фильма для редактирования:', error);
+                alert('Ошибка загрузки данных фильма для редактирования: ' + error.message); // Временно alert
+            }
+        }
+
+        // Обработчик отправки формы редактирования фильма
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault(); // Предотвращаем стандартную отправку формы
+
+            if (!currentEditingMovie) return; // Если нет фильма для редактирования, выходим
+
+            // Получаем значения из полей формы
+            const title = document.getElementById('editTitle').value;
+            const genre = document.getElementById('editGenre').value;
+            const year = document.getElementById('editYear').value;
+            const rating = document.getElementById('editRating').value;
+            const description = document.getElementById('editDescription').value;
+
+            try {
+                // Вызываем Python-функцию для обновления информации о фильме
+                const result = await eel.update_movie_info(currentEditingMovie, title, genre, year, rating, description)();
+                if (result.success) {
+                    closeModal('editModal'); // Закрываем модальное окно
+                    loadMovies(); // Перезагружаем список фильмов, чтобы увидеть изменения
+                } else {
+                    alert('Ошибка сохранения: ' + result.error); // Временно alert
+                }
+            } catch (error) {
+                console.error('Ошибка сохранения:', error);
+                alert('Критическая ошибка сохранения данных фильма: ' + error.message); // Временно alert
+            }
+        });
+
+        async function deleteMovie(movieId) {
+            // Запрос подтверждения перед удалением
+            if (!confirm('Вы уверены, что хотите удалить этот фильм? Это также удалит файл фильма с диска и его превью.')) {
+                return;
+            }
+
+            try {
+                const result = await eel.delete_movie(movieId)(); // Вызываем Python-функцию удаления
+                if (result.success) {
+                    loadMovies(); // Перезагружаем список фильмов
+                    alert('Фильм успешно удален!'); // Временно alert
+                } else {
+                    alert('Ошибка удаления: ' + result.error); // Временно alert
+                }
+            } catch (error) {
+                console.error('Ошибка удаления:', error);
+                alert('Критическая ошибка удаления фильма: ' + error.message); // Временно alert
+            }
+        }
+
+        async function browseForMovie() {
+            try {
+                const result = await eel.browse_for_movie()(); // Вызываем Python-функцию для открытия диалога выбора файла
+                if (result.success) {
+                    loadMovies(); // Перезагружаем фильмы после добавления
+                    alert('Фильм успешно добавлен в коллекцию!'); // Временно alert
+                } else {
+                    // Если пользователь отменил выбор или возникла ошибка
+                    if (result.error !== 'Выбор файла отменен.') { // Не показываем alert, если пользователь просто отменил
+                        alert('Ошибка добавления: ' + result.error); // Временно alert
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка добавления фильма:', error);
+                alert('Критическая ошибка при добавлении фильма: ' + error.message); // Временно alert
+            }
+        }
+
+        // Универсальная функция для закрытия модальных окон
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                // Если закрывается модальное окно видеоплеера, останавливаем видео
+                if (modalId === 'videoPlayerModal') {
+                    const videoPlayer = document.getElementById('videoPlayer');
+                    videoPlayer.pause();
+                    videoPlayer.removeAttribute('src');
+                    videoPlayer.load();
+                }
+            }
+        }
+
+        // Вспомогательные функции для форматирования длительности
+        function formatDuration(seconds) {
+            if (seconds <= 0) return "0м";
+            
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            
+            let parts = [];
+            if (hours > 0) {
+                parts.push(`${hours}ч`);
+            }
+            if (minutes > 0 || (hours === 0 && seconds > 0)) { // Показывать минуты, даже если 0, если нет часов и есть секунды
+                parts.push(`${minutes}м`);
+            }
+            return parts.join(' ');
+        }
+
+        // Вспомогательные функции для форматирования размера файла
+        function formatFileSize(bytes) {
+            if (bytes <= 0) return "0 Б";
+            
+            const units = ['Б', 'КБ', 'МБ', 'ГБ', 'ТБ'];
+            let size = bytes;
+            let unitIndex = 0;
+            
+            while (size >= 1024 && unitIndex < units.length - 1) {
+                size /= 1024;
+                unitIndex++;
+            }
+            
+            return `${size.toFixed(1)} ${units[unitIndex]}`;
+        }
+
+        // Функция для отображения сообщений об ошибках на UI
+        function showError(message) {
+            const container = document.getElementById('moviesContainer');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <h3>Ошибка</h3>
+                    <p>${message}</p>
+                    <p>Пожалуйста, проверьте консоль Python (терминал, где запущен main.py) для более подробной информации.</p>
+                </div>
+            `;
+        }
+
+        // Закрытие модального окна по клику вне его
+        window.onclick = function(event) {
+            const editModal = document.getElementById('editModal');
+            const videoPlayerModal = document.getElementById('videoPlayerModal');
+
+            if (event.target === editModal) {
+                closeModal('editModal');
+            }
+            if (event.target === videoPlayerModal) {
+                closeModal('videoPlayerModal');
+            }
+        }
+    </script>
+</body>
+</html>
